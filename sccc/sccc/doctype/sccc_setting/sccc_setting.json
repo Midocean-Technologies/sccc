@@ -1,0 +1,42 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2025-08-20 18:10:49.959165",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "mysql_password"
+ ],
+ "fields": [
+  {
+   "fieldname": "mysql_password",
+   "fieldtype": "Data",
+   "label": "MySQL Password"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2025-08-20 18:11:14.602643",
+ "modified_by": "Administrator",
+ "module": "SCCC",
+ "name": "SCCC Setting",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

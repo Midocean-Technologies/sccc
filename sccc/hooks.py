@@ -84,6 +84,8 @@ app_license = "mit"
 
 # before_install = "sccc.install.before_install"
 # after_install = "sccc.install.after_install"
+after_install = "sccc.install.after_install"
+after_migrate = "sccc.install.after_install"
 
 # Uninstallation
 # ------------

@@ -7,14 +7,15 @@ def after_install():
     customfield()
 
 def customfield():
-    create_custom_field(  
-        "Site",
-        {
-            "label":_("Customer Onboarding"),
-            "fieldname": "customer_onboarding",
-            "fieldtype": "Data",
-            "insert_after": "disable_website_cache",
-            "read_only":1
-        }
-    )
+    if "bench_manager" in frappe.get_installed_apps():
+        create_custom_field(  
+            "Site",
+            {
+                "label":_("Customer Onboarding"),
+                "fieldname": "customer_onboarding",
+                "fieldtype": "Data",
+                "insert_after": "disable_website_cache",
+                "read_only":1
+            }
+        )
     

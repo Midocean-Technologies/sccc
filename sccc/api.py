@@ -13,7 +13,6 @@ import uuid
 def unique_key():
     return f"{frappe.utils.now_datetime().isoformat()}-{uuid.uuid4().hex[:8]}"
 
-
 @frappe.whitelist()
 def create_site_from_hd_ticket(ticket, email, plan, full_name, site_name):
 
@@ -92,36 +91,38 @@ def verify_password(site_name, mysql_password):
 
 @frappe.whitelist()
 def create_site(site_name, mysql_password, admin_password, key, full_name, email, onboarding_doc, a_async=True):
-	verify_whitelisted_call()
-	commands = [
-		f"bench new-site --mariadb-root-password {mysql_password} --admin-password {admin_password} --no-mariadb-socket {site_name}"
-	]
-	try:
-		with open("apps.txt", "r") as f:
-			app_list = f.read()
-	except Exception:
-		app_list = ""
-	if "erpnext" not in app_list:
-		commands.append("bench get-app erpnext")
-	commands.append(f"bench --site {site_name} install-app erpnext")
-	commands.append(f"bench --site {site_name} set-maintenance-mode off")
-	commands.append(f"bench --site {site_name} migrate")
-	job = frappe.enqueue(
-		"sccc.api.job_site_creation",
-		commands=commands,
-		doctype="Bench Settings",
-		key=unique_key(),
-		site_name=site_name,
-		onboarding_doc=onboarding_doc,
-		full_name=full_name,
-		email=email,
-		is_async=a_async,
-		timeout=3600,
-		queue="long",
-	)
-	if job:
-		return getattr(job, "id", job)
-	return None
+    verify_whitelisted_call()
+    commands = [
+        f"bench new-site --mariadb-root-password {mysql_password} --admin-password {admin_password} --no-mariadb-socket {site_name}"
+    ]
+    try:
+        with open("apps.txt", "r") as f:
+            app_list = f.read()
+    except Exception:
+        app_list = ""
+    if "erpnext" not in app_list:
+        commands.append("bench get-app erpnext")
+    if "zatca_erpgulf" not in app_list:
+        commands.append("bench get-app https://github.com/ERPGulf/zatca_erpgulf.git")
+    commands.append(f"bench --site {site_name} install-app erpnext")
+    commands.append(f"bench --site {site_name} set-maintenance-mode off")
+    commands.append(f"bench --site {site_name} migrate")
+    job = frappe.enqueue(
+        "sccc.api.job_site_creation",
+        commands=commands,
+        doctype="Bench Settings",
+        key=unique_key(),
+        site_name=site_name,
+        onboarding_doc=onboarding_doc,
+        full_name=full_name,
+        email=email,
+        is_async=a_async,
+        timeout=3600,
+        queue="long",
+    )
+    if job:
+        return getattr(job, "id", job)
+    return None
 
 
 def job_site_creation(commands, doctype, key, site_name, onboarding_doc, full_name, email, *args, **kwargs):
@@ -140,8 +141,7 @@ def job_site_creation(commands, doctype, key, site_name, onboarding_doc, full_na
 		})
 
 		commands_to_run = [
-			f"bench --site {site_name} install-app bench_manager",
-			f"bench --site {site_name} install-app sccc",
+			f"bench --site {site_name} install-app sccc_theme",
 			f"bench --site {site_name} migrate",
 			f"bench --site {site_name} execute sccc.api.run_setup_wizard --kwargs '{kwargs_json}'",
 			f"bench --site {site_name} execute sccc.api.create_or_update_user --kwargs '{kwargs_json}'"
@@ -157,13 +157,13 @@ def job_site_creation(commands, doctype, key, site_name, onboarding_doc, full_na
 def run_setup_wizard(full_name, email):
 	fy_start, fy_end = get_fiscal_year_dates()
 	args = {
-		"currency": "INR",
-		"country": "India",
-		"timezone": "Asia/Kolkata",
+		"currency": "SAR",
+		"country": "Saudi Arabia",
+		"timezone": "Asia/Riyadh",
 		"language": "English",
-		"company_name": full_name + " Pvt Ltd",
+		"company_name": full_name,
 		"company_abbr": "".join([p[0] for p in full_name.split()]).upper(),
-		"chart_of_accounts": "India - Chart of Accounts",
+		"chart_of_accounts": "Standard",
 		"fy_start_date": fy_start,
 		"fy_end_date": fy_end,
 		"setup_demo": 0

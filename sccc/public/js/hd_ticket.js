@@ -1,5 +1,6 @@
 frappe.ui.form.on("HD Ticket", {
     refresh(frm) {
+        if(frm.doc.status == "Open"){
         frm.add_custom_button(__('Create Site'), function() {
 
             let d = new frappe.ui.Dialog({
@@ -79,5 +80,6 @@ frappe.ui.form.on("HD Ticket", {
             'color': 'white',
             'font-weight': 'bold'
         });
+        }
     }
 });

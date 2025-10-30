@@ -150,23 +150,14 @@ after_migrate = "sccc.install.after_install"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
-# 	"all": [
-# 		"sccc.tasks.all"
-# 	],
-# 	"daily": [
-# 		"sccc.tasks.daily"
-# 	],
-# 	"hourly": [
-# 		"sccc.tasks.hourly"
-# 	],
-# 	"weekly": [
-# 		"sccc.tasks.weekly"
-# 	],
-# 	"monthly": [
-# 		"sccc.tasks.monthly"
-# 	],
-# }
+scheduler_events = {
+    "cron": {
+        "* * * * *": [
+            "frappe.email.doctype.email_account.email_account.pull",
+        ]
+    }
+}
+
 
 # Testing
 # -------

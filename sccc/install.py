@@ -8,6 +8,25 @@ def after_install():
     create_role_profile()
 
 def create_role_profile():
+    if not frappe.db.exists("Role Profile", "Individual"):
+        doc = frappe.get_doc({
+            "doctype": "Role Profile",
+            "role_profile": "Individual",
+            "roles": [
+                {"role": "Sales User"},
+                {"role": "Sales Master Manager"},
+                {"role": "Sales Manager"},
+                {"role": "Item Manager"},
+                {"role": "Stock User"},
+                {"role": "Stock Manager"},
+                {"role": "Customer"},
+                {"role": "Accounts Manager"},
+                {"role": "Accounts User"},
+                {"role":"Auditor"},
+            ]
+        })
+        doc.insert()
+
     if not frappe.db.exists("Role Profile", "Essential"):
         doc = frappe.get_doc({
             "doctype": "Role Profile",
@@ -16,6 +35,9 @@ def create_role_profile():
                 {"role": "Sales User"},
                 {"role": "Sales Master Manager"},
                 {"role": "Sales Manager"},
+                {"role": "Accounts Manager"},
+                {"role": "Accounts User"},
+                {"role":"Auditor"},
                 {"role": "Item Manager"},
                 {"role": "Purchase User"},
                 {"role": "Purchase Manager"},
@@ -28,6 +50,7 @@ def create_role_profile():
             ]
         })
         doc.insert()
+        
     if not frappe.db.exists("Role Profile", "Pro"):
         doc = frappe.get_doc({
             "doctype": "Role Profile",
@@ -46,10 +69,10 @@ def create_role_profile():
                 {"role": "HR Manager"},
                 {"role": "HR User"},
                 {"role": "Accounts Manager"},
+                {"role":"Auditor"},
                 {"role": "Accounts User"},
                 {"role": "Projects Manager"},
                 {"role": "Projects User"},
-                {"role": "Support Team"},
             ]
         })
         doc.insert()
@@ -77,8 +100,13 @@ def create_role_profile():
                 {"role": "Projects User"},
                 {"role": "Support Team"},
                 {"role": "Dashboard Manager"},
-                {"role": "Website Manager"},
                 {"role": "Report Manager"},
+                {"role":"Quality Manager"},
+                {"role":"Manufacturing Manager"},
+                {"role":"Manufacturing User"},
+                {"role":"Auditor"},
+                {"role":"Maintenance Manager"},
+                {"role":"Workspace Manager"},
             ]
         })
         doc.insert()

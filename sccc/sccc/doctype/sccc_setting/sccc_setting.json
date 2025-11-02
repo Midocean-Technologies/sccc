@@ -5,20 +5,28 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "mysql_password"
+  "mysql_password",
+  "plan"
  ],
  "fields": [
   {
    "fieldname": "mysql_password",
    "fieldtype": "Data",
    "label": "MySQL Password"
+  },
+  {
+   "fieldname": "plan",
+   "fieldtype": "Link",
+   "label": "Plan",
+   "options": "Role Profile",
+   "read_only": 1
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2025-08-20 18:11:14.602643",
+ "modified": "2025-10-31 14:32:07.691714",
  "modified_by": "Administrator",
  "module": "SCCC",
  "name": "SCCC Setting",

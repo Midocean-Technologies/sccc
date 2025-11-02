@@ -24,6 +24,15 @@ app_license = "mit"
 # Includes in <head>
 # ------------------
 
+fixtures = [
+    {
+        "dt": "Module Profile",
+        "filters": [
+            ["name", "in", ["Essential", "Individual","Pro","Ultimate"]]
+        ]
+    }
+]
+
 # include js, css files in header of desk.html
 # app_include_css = "/assets/sccc/css/sccc.css"
 # app_include_js = "/assets/sccc/js/sccc.js"

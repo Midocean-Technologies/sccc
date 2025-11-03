@@ -7,7 +7,7 @@ from bench_manager.bench_manager.utils import verify_whitelisted_call, run_comma
 from bench_manager.bench_manager.doctype.bench_settings.bench_settings import sync_sites
 from frappe.desk.page.setup_wizard.setup_wizard import setup_complete
 from frappe.utils.password import update_password
-from frappe.permissions import AUTOMATIC_ROLES
+from frappe.desk.page.setup_wizard.setup_wizard import setup_complete
 import uuid
 
 def unique_key():
@@ -186,80 +186,53 @@ def job_site_creation(commands, doctype, key, site_name, onboarding_doc, full_na
         raise
 
 
-@frappe.whitelist()
-def run_setup_wizard(full_name, email):
-	fy_start, fy_end = get_fiscal_year_dates()
-	args = {
-		"currency": "SAR",
-		"country": "Saudi Arabia",
-		"timezone": "Asia/Riyadh",
-		"language": "English",
-		"company_name": full_name,
-		"company_abbr": "".join([p[0] for p in full_name.split()]).upper(),
-		"chart_of_accounts": "Standard",
-		"fy_start_date": fy_start,
-		"fy_end_date": fy_end,
-		"setup_demo": 0
-	}
-	setup_complete(args)
+# @frappe.whitelist()
+# def run_setup_wizard(company_name,language):
+# 	fy_start, fy_end = get_fiscal_year_dates()
+# 	args = {
+# 		"currency": "SAR",
+# 		"country": "Saudi Arabia",
+# 		"timezone": "Asia/Riyadh",
+# 		"language": language,
+# 		"company_name": company_name,
+# 		"company_abbr": "".join([p[0] for p in company_name.split()]).upper(),
+# 		"chart_of_accounts": "Standard",
+# 		"fy_start_date": fy_start,
+# 		"fy_end_date": fy_end,
+# 		"setup_demo": 0
+# 	}
+# 	setup_complete(args)
      
-@frappe.whitelist()
-def create_email_account(email, password):
-    doc = frappe.new_doc("Email Account")
-    doc.email_id = email
-    doc.service = "GMail"
-    doc.auth_method = "Basic"
-    doc.password = password
-    doc.enable_outgoing = 1
-    doc.default_outgoing = 1
-    doc.use_tls = 1
-    doc.smtp_server = "smtp.gmail.com"
-    doc.smtp_port = 587
-    doc.always_use_account_email_id_as_sender = 1
-    doc.always_use_account_name_as_sender_name = 1
-    doc.send_unsubscribe_message = 1
-    doc.track_email_status = 1
-    doc.insert(ignore_permissions=True)
-    return f"Email Account {email} created successfully."
-
-	
-
-@frappe.whitelist()
-def create_client_user(email, plan, full_name):
-    if not frappe.db.exists("Role Profile", plan):
-        frappe.throw(f"Role Profile '{plan}' not found")
-
-    userDoc = frappe.new_doc("User")
-    userDoc.email = email
-    userDoc.first_name = full_name
-    userDoc.language = "en"
-    userDoc.time_zone = "Asia/Riyadh"
-    userDoc.send_welcome_email = 1
-    userDoc.save(ignore_permissions=True)
-
-    role_profile = frappe.get_doc("Role Profile", plan)
-    for role in role_profile.roles:
-        userDoc.append("roles", {"role": role.role})
-    userDoc.module_profile = plan
-    userDoc.save(ignore_permissions=True)
-
-def get_fiscal_year_dates():
-	today = getdate(nowdate())
-	year = today.year
-	if today.month < 4:
-		fy_start = date(year - 1, 4, 1).isoformat()
-		fy_end = date(year, 3, 31).isoformat()
-	else:
-		fy_start = date(year, 4, 1).isoformat()
-		fy_end = date(year + 1, 3, 31).isoformat()
-	return fy_start, fy_end
 
 
-def _update_master_site(onboarding_doc, values: dict):
-	master_site = frappe.local.site
-	frappe.init(master_site)
-	frappe.connect()
-	frappe.db.commit()
+
+# @frappe.whitelist()
+# def create_client_user(email, plan, full_name):
+#     if not frappe.db.exists("Role Profile", plan):
+#         frappe.throw(f"Role Profile '{plan}' not found")
+
+#     userDoc = frappe.new_doc("User")
+#     userDoc.email = email
+#     userDoc.first_name = full_name
+#     userDoc.language = "en"
+#     userDoc.time_zone = "Asia/Riyadh"
+#     userDoc.send_welcome_email = 1
+#     userDoc.save(ignore_permissions=True)
+
+#     role_profile = frappe.get_doc("Role Profile", plan)
+#     for role in role_profile.roles:
+#         userDoc.append("roles", {"role": role.role})
+#     userDoc.module_profile = plan
+#     userDoc.save(ignore_permissions=True)
+
+
+
+
+# def _update_master_site(onboarding_doc, values: dict):
+# 	master_site = frappe.local.site
+# 	frappe.init(master_site)
+# 	frappe.connect()
+# 	frappe.db.commit()
 
 @frappe.whitelist()
 def create_or_update_user(args): 
@@ -306,3 +279,144 @@ def create_or_update_user(args):
     if args.get("password"):
         update_password(email, args.get("password"))
 
+
+# ====================================================================================================================
+# Manual Site Configuration
+
+
+
+@frappe.whitelist()
+def run_setup_wizard(company_name, language):
+    try:
+        if not company_name:
+            frappe.throw("Company name is required.")
+        if not language:
+            frappe.throw("Language is required.")
+
+        fy_start, fy_end = get_fiscal_year_dates()
+
+        args = {
+            "currency": "SAR",
+            "country": "Saudi Arabia",
+            "timezone": "Asia/Riyadh",
+            "language": language,
+            "company_name": company_name,
+            "company_abbr": "".join([p[0] for p in company_name.split()]).upper(),
+            "chart_of_accounts": "Standard",
+            "fy_start_date": fy_start,
+            "fy_end_date": fy_end,
+            "setup_demo": 0
+        }
+
+        setup_complete(args)
+        frappe.db.commit()
+
+        return {
+            "status": "success",
+            "message": f"Setup wizard completed successfully for {company_name}."
+        }
+
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback(),
+            title="Setup Wizard Failed"
+        )
+        return {
+            "status": "error",
+            "message": f"Setup wizard failed: {str(e)}"
+        }
+
+def get_fiscal_year_dates():
+	today = getdate(nowdate())
+	year = today.year
+	if today.month < 4:
+		fy_start = date(year - 1, 4, 1).isoformat()
+		fy_end = date(year, 3, 31).isoformat()
+	else:
+		fy_start = date(year, 4, 1).isoformat()
+		fy_end = date(year + 1, 3, 31).isoformat()
+	return fy_start, fy_end
+
+@frappe.whitelist()
+def setup_email_account(email, password):
+    try:
+        doc = frappe.new_doc("Email Account")
+        doc.email_account_name = "Support SCCC"
+        doc.email_id = email
+        doc.service = ""
+        doc.auth_method = "Basic"
+        doc.password = password
+        doc.enable_outgoing = 1
+        doc.default_outgoing = 1
+        doc.use_ssl_for_outgoing = 1
+        doc.smtp_server = "andrew.ace-host.net"
+        doc.smtp_port = 465
+        doc.always_use_account_email_id_as_sender = 1
+        doc.always_use_account_name_as_sender_name = 1
+        doc.send_unsubscribe_message = 1
+        doc.track_email_status = 1
+
+        doc.insert(ignore_permissions=True)
+
+        return {
+            "status": "success",
+            "message": f"Email Account '{email}' created successfully."
+        }
+
+    except Exception as e:
+        frappe.log_error(message=frappe.get_traceback(), title="Email Account Creation Failed")
+        return {
+            "status": "error",
+            "message": f"Failed to create Email Account: {str(e)}"
+        }
+    
+
+@frappe.whitelist()
+def create_client_user(email, plan, full_name):
+    try:
+        if not email:
+            frappe.throw("Email is required.")
+        if not plan:
+            frappe.throw("Plan (Role Profile) is required.")
+        if not full_name:
+            frappe.throw("Full name is required.")
+
+        if not frappe.db.exists("Role Profile", plan):
+            frappe.throw(f"Role Profile '{plan}' not found.")
+
+        if frappe.db.exists("User", email):
+            return {
+                "status": "warning",
+                "message": f"User with email '{email}' already exists."
+            }
+
+        userDoc = frappe.new_doc("User")
+        userDoc.email = email
+        userDoc.first_name = full_name
+        # userDoc.language = language
+        userDoc.time_zone = "Asia/Riyadh"
+        userDoc.send_welcome_email = 1
+
+        userDoc.save(ignore_permissions=True)
+
+        role_profile = frappe.get_doc("Role Profile", plan)
+        for role in role_profile.roles:
+            userDoc.append("roles", {"role": role.role})
+
+        userDoc.module_profile = plan
+        userDoc.save(ignore_permissions=True)
+
+        return {
+            "status": "success",
+            "message": f"User '{full_name}' ({email}) created successfully with plan '{plan}'."
+        }
+
+    except Exception as e:
+        frappe.log_error(
+            message=frappe.get_traceback(),
+            title="Client User Creation Failed"
+        )
+        return {
+            "status": "error",
+            "message": f"Failed to create user: {str(e)}"
+        }
